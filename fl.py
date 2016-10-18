@@ -1,4 +1,4 @@
-from FSM import FSM, concat, add, iteration
+from FSM import FSM, concat, add, iteration, intersect, shortest_word
 
 
 SIGMA = ['a', 'b', 'c']
@@ -29,24 +29,35 @@ def fsm_from_expression(expression):
         raise IndexError
     return fsm_stack[0]
 
+
+def generate_exp_for_subword(char, degree):
+    word_expr = 'abc++*'
+    for i in range(degree):
+        word_expr += char
+    for i in range(degree - 1):
+        word_expr += '.'
+    word_expr += 'abc++*..'
+    return word_expr
+
+
 if __name__ == "__main__":
-    expr_fsm = fsm_from_expression('a*ab+.').nodes
-    print len(expr_fsm)
-    print
-    for i in range(len(expr_fsm)):
-        print i, expr_fsm[i]
+    expr_fsm = fsm_from_expression('aa*.').nodes
 
     k = 1
     letter = 'a'
-    word_expr = 'ab+*'
-    for i in range(k):
-        word_expr += letter
-    for i in range(k-1):
-        word_expr += '.'
-    word_expr += 'ab+*..'
 
-    word = fsm_from_expression(word_expr).nodes
-    print len(word)
-    print
-    for i in range(len(word)):
-        print i, word[i]
+    word = fsm_from_expression(generate_exp_for_subword(letter, k)).nodes
+
+#ab+c.aba.*.bac.+.+*
+#acb..bab.c.*.ab.ba.+.+*a.
+
+    test_1 = fsm_from_expression('acb..bab.c.*.ab.ba.+.+*a.')
+    test_2 = fsm_from_expression(generate_exp_for_subword('b', 3))
+
+    print test_1
+
+    fsm_t = intersect(test_1, test_2)
+    print fsm_t
+
+    print shortest_word(fsm_t)
+
