@@ -1,7 +1,7 @@
 from itertools import product
 
 
-Alphabet = ['a', 'b', 'c']
+SIGMA = ['a', 'b', 'c']
 
 
 class FSM:
@@ -10,6 +10,8 @@ class FSM:
 
     def create(self, char):
         self.nodes[0].append([char, 1])
+        if char == '':
+            self.nodes[0][0] = ''
         return self
 
     def __repr__(self):
@@ -63,17 +65,17 @@ def get_eps_neighbs(neighbors, fsm, state, recursion_depth=0):
     recursion_depth += 1
     if recursion_depth >= fsm.len() + 1:
         return set()
+    if state == fsm.len() - 1:
+        neighbors.add(state)
     for arrow in fsm.nodes[state]:
         if arrow[0] == '':
-            neighbors.add(arrow[1])
-            neighbors.union(get_eps_neighbs(neighbors, fsm, arrow[1], recursion_depth))
+            get_eps_neighbs(neighbors, fsm, arrow[1], recursion_depth)
     return neighbors
 
 
 def get_neighbors(neighbors, fsm, state, char, recursion_depth=0):
-    #neighbors = set()
     recursion_depth += 1
-    if recursion_depth >= fsm.len() + 1:
+    if recursion_depth >= len(fsm.nodes) + 1:
         return set()
     for arrow in fsm.nodes[state]:
         if arrow[0] == char:
@@ -81,7 +83,6 @@ def get_neighbors(neighbors, fsm, state, char, recursion_depth=0):
             get_eps_neighbs(neighbors, fsm, arrow[1])
         elif arrow[0] == '':
             neighbors.union(get_neighbors(neighbors, fsm, arrow[1], char, recursion_depth))
-    #print '!!!', neighbors
     return neighbors
 
 
@@ -93,7 +94,7 @@ def intersect(first, second):
     while current_state != len(queue):
         state = queue[current_state]
         res_fsm.nodes.append([])
-        for character in Alphabet:
+        for character in SIGMA:
             neighbors = set()
             first_neighbors = list(get_neighbors(neighbors, first, state[0], character))
             neighbors = set()

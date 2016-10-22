@@ -1,13 +1,10 @@
-from FSM import FSM, concat, add, iteration, intersect, shortest_word
+from FSM import FSM, concat, add, iteration, intersect, shortest_word, SIGMA
 
 
-SIGMA = ['a', 'b', 'c']
-
-
-def fsm_from_expression(expression):
+def fsm_from_expression(exp):
 
     fsm_stack = []
-    for char in expression:
+    for char in exp:
         if char in SIGMA or char == '1':
             fsm = FSM()
             fsm_stack.append(fsm.create(char))
@@ -30,34 +27,33 @@ def fsm_from_expression(expression):
     return fsm_stack[0]
 
 
-def generate_exp_for_subword(char, degree):
+def generate_exp_for_subword(char, deg):
     word_expr = 'abc++*'
-    for i in range(degree):
+    for i in range(deg):
         word_expr += char
-    for i in range(degree - 1):
+    for i in range(deg - 1):
         word_expr += '.'
     word_expr += 'abc++*..'
     return word_expr
 
 
 if __name__ == "__main__":
-    expr_fsm = fsm_from_expression('aa*.').nodes
+    input_data = raw_input()
+    data = str.split(input_data)
+    expression = data[0]
+    letter = data[1]
+    degree = int(data[2])
 
-    k = 1
-    letter = 'a'
+    try:
+        expr_fsm = fsm_from_expression(expression)
+        word = fsm_from_expression(generate_exp_for_subword(letter, degree))
 
-    word = fsm_from_expression(generate_exp_for_subword(letter, k)).nodes
+        fsm_final = intersect(expr_fsm, word)
 
-#ab+c.aba.*.bac.+.+*
-#acb..bab.c.*.ab.ba.+.+*a.
-
-    test_1 = fsm_from_expression('acb..bab.c.*.ab.ba.+.+*a.')
-    test_2 = fsm_from_expression(generate_exp_for_subword('b', 3))
-
-    print test_1
-
-    fsm_t = intersect(test_1, test_2)
-    print fsm_t
-
-    print shortest_word(fsm_t)
+        if fsm_final is not None:
+            print shortest_word(fsm_final)
+        else:
+            print 'INF'
+    except IndexError:
+        print 'Unable to solve. Wrong RegExp.'
 
